@@ -4,8 +4,8 @@ It does not use the forced-alignment instead it creates a bigram LM using the in
 After creating a language model it create an HCLG graph and use Kaldi decoder to generate a lattice and finally use the lattice to obtain alignment information.
 
 requirements:
-1- Kaldi tool.
-2- SRILM (also existed under Kaldi/tools)
+1- Kaldi tool. From: https://github.com/kaldi-asr/kaldi
+2- SRILM (also existed under Kaldi/tools). From: http://www.speech.sri.com/projects/srilm/
 3- Python 3
 4- bash (only tested under Linux)
 

@@ -13,6 +13,12 @@ After installing Kaldi and SRILM:
 open path.sh and update export KALDI_ROOT=/home/amir/Projects/kaldi to your kaldi path.
 Also make sure SRILM binaries (specifically ngram-count) is in the PATH.
 
+Before running the aligner:
+Download the pretrained Aspire chain model by running:
+sh sownload_extract.sh
+This  script downloads the model and also run some commands for preparation.
+Alternatively, you can train your own model. However, you might need to update the scripts accordingly.
+
 Example:
 bash align.sh example/trans.txt example/test.wav  out.ctm
 

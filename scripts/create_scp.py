@@ -21,10 +21,12 @@ def main():
       print("You need to specify the out directory.")
       exit(0)
 
-    parts = args.input_wav.split(".")
-    base = parts[0]
+    parts = args.input_wav.split("/")
+    path = "/".join(parts[0:-1])
+    base = parts[-1]
+    #base = parts[0]
     kaldi_base = "xxx_" + base  # xxx is the speaker
-    new_file = kaldi_base + ".wav"
+    new_file = kaldi_base # + ".wav"
 
     copyfile(args.input_wav, args.out_dir + "/" + new_file)
     spk2utr = "xxx " + kaldi_base

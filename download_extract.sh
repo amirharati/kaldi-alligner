@@ -1,5 +1,5 @@
 # download and extract model
-mkdir temp
+mkdir -p temp
 cd temp
 wget http://dl.kaldi-asr.org/models/0001_aspire_chain_model.tar.gz
 tar -xzf 0001_aspire_chain_model.tar.gz

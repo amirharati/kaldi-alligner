@@ -21,9 +21,9 @@ input_wav=$2
 # ctm file contains the aligned trancript
 out_ctm=$3
 
-mkdir -p temp
-rm -rf temp
 
+rm -rf temp
+mkdir -p temp
 # create scp files
 python scripts/create_scp.py -i $input_wav -o temp
 

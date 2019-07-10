@@ -21,6 +21,9 @@ input_wav=$2
 # ctm file contains the aligned trancript
 out_ctm=$3
 
+out_phone_ctm=$4
+
+out_transid_seq=$5
 
 rm -rf temp
 mkdir -p temp
@@ -57,12 +60,22 @@ utils/mkgraph.sh --self-loop-scale 1.0 temp/lang exp/tdnn_7b_chain_online temp/g
 # subsample the frames by factor 3
 # --frame-subsampling-factor=1
 mkdir temp/out
-online2-wav-nnet3-latgen-faster --online=true --do-endpointing=false   --config=exp/tdnn_7b_chain_online/conf/online.conf --max-active=7000 --beam=15.0 --lattice-beam=6.0 --acoustic-scale=1.0 --word-symbol-table=temp/graph_pp/words.txt exp/tdnn_7b_chain_online/final.mdl temp/graph_pp/HCLG.fst "ark:temp/spk2utt.scp"  "scp:temp/wav.scp" "ark:|lattice-scale --acoustic-scale=1.0 ark:- ark:- | gzip -c >temp/out/lat.1.gz"
+online2-wav-nnet3-latgen-faster --online=true --do-endpointing=false   --config=exp/tdnn_7b_chain_online/conf/online.conf --max-active=7000 --beam=15.0 \
+--lattice-beam=6.0 --acoustic-scale=1.0 --word-symbol-table=temp/graph_pp/words.txt exp/tdnn_7b_chain_online/final.mdl \
+temp/graph_pp/HCLG.fst "ark:temp/spk2utt.scp"  "scp:temp/wav.scp" "ark:|lattice-scale --acoustic-scale=0.5 ark:- ark:- | gzip -c >temp/out/lat.1.gz"
 
 # create time alignment
 # also acount for frame sub-sampling
 # --frame-shift=0.01
 lattice-align-words-lexicon  temp/lang/phones/align_lexicon.int  exp/tdnn_7b_chain_online/final.mdl "ark:gunzip -c temp/out/lat.1.gz|" ark:- | lattice-1best ark:- ark:- |  nbest-to-ctm  ark:- temp/out/align.ctm
 
+zcat temp/out/lat.1.gz  > temp/out/lat.1
+lattice-1best --acoustic-scale=1 ark:temp/out/lat.1 ark:temp/out/1best.lats
+nbest-to-linear ark:temp/out/1best.lats ark,t:temp/out/1.ali 
+ali-to-phones --ctm-output exp/tdnn_7b_chain_online/final.mdl ark:temp/out/1.ali temp/out/phone_alined.ctm
+
 python scripts/convert_ctm.py -i temp/out/align.ctm  -w temp/lang/words.txt -o $out_ctm
 
+python scripts/convert_ctm.py -i temp/out/phone_alined.ctm  -w temp/lang/phones.txt -o $out_phone_ctm
+
+copy-int-vector ark:temp/out/1.ali ark,t:$out_transid_seq

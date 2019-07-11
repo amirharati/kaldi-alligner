@@ -1,0 +1,6 @@
+*.pyc
+testlog
+__pychache__
+.pypirc
+dist
+build

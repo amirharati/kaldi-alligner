@@ -26,7 +26,7 @@ out_ctm=$4
 
 out_phone_ctm=$5
 
-out_transid_seq=$6
+out_state_seq=$6
 
 #rm -rf temp
 mkdir -p temp
@@ -84,4 +84,6 @@ python scripts/convert_ctm.py -i temp/out/align.ctm  -w temp/lang/words.txt -o $
 
 python scripts/convert_ctm.py -i temp/out/phone_alined.ctm  -w temp/lang/phones.txt -o $out_phone_ctm
 
-copy-int-vector ark:temp/out/1.ali ark,t:$out_transid_seq
+copy-int-vector ark:temp/out/1.ali ark,t:temp/out/transids.txt
+show-transitions temp/lang/phones.txt exp/tdnn_7b_chain_online/final.mdl >  temp/out/transitions.txt
+python map_kaldi_transitionids.py  --input temp/out/transids.txt  --input_transitions temp/out/transitions.txt  --output $out_state_seq

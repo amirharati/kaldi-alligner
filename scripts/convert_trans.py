@@ -5,7 +5,7 @@
   Amir Harati April 2018
 """
 import argparse
-
+import string 
 # reptation of actual transcription
 # We might want to make it sensetive to score.
 R = 6
@@ -24,6 +24,7 @@ def main():
                          default=None,
                         help="words for recognizer lexicon (in Kaldi format).")
     parser.add_argument("-u", "--unknown", default="<unk>", help="OOV symbol")
+    #parser.add_argument("-g", "--use_g2p", default=False)
     args = parser.parse_args()
 
     if args.input_trans is None:
@@ -36,6 +37,8 @@ def main():
       print("You need to specify the input wor list.")
       exit(0)
 
+    ##exclude = set(string.punctuation)
+    exclude = {'#', '+', '`', '^', '!', '\\', ';', '?', '{', '/', '|', '}', '~', '"', '(', "'", ']', '-', '>', '%', ')', '&', '=', '[', '@', '_', '.', '<', '*'}
 
     # read input transcript. One per line (in case multiple version existed)
     input_trans = [line.strip().lower() for line in open(args.input_trans)]
@@ -49,6 +52,9 @@ def main():
     # basiaclly bias the LM toward this.
     for r in range(R):
       for trans in input_trans:
+        trans = trans.lower()
+        trans = trans.replace(",", " ")
+        trans = ''.join([ch for ch in trans if ch not in exclude])
         out_trans = ""
         for w in trans.split():
           if w in input_words:

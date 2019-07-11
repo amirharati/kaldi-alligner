@@ -18,33 +18,39 @@ source path.sh
 input_trans=$1
 # input wave file
 input_wav=$2
+
+input_lang_dir=$3
+
 # ctm file contains the aligned trancript
-out_ctm=$3
+out_ctm=$4
 
-out_phone_ctm=$4
+out_phone_ctm=$5
 
-out_transid_seq=$5
+out_transid_seq=$6
 
-rm -rf temp
+#rm -rf temp
 mkdir -p temp
 # create scp files
 python scripts/create_scp.py -i $input_wav -o temp
 
+
+
+
+# copy the lm data
+mkdir -p temp/lang
+
+mkdir -p temp/graph_pp
+
+
+cp $input_lang_dir/* temp/lang
+
+
 # expand and update the transcriptions
 python scripts/convert_trans.py -i $input_trans -o temp/trans.txt \
-        -l [laughter] -n [noise] -u "<unk>" -w data/lang_chain/words.txt
+        -l [laughter] -n [noise] -u "<unk>" -w temp/lang/words.txt 
 
 # make sure srilm is installed in is in the path (path.sh should do it but in case it does not)
 ngram-count   -text temp/trans.txt -order 2 -addsmooth 0.1   -unk  -lm temp/custom.lm
-
-# copy the lm data
-mkdir temp/lang
-mkdir temp/graph_pp
-cp -r exp/tdnn_7b_chain_online/graph_pp/* temp/graph_pp
-cp -r data/lang_pp_test/* temp/lang
-# without sleep copying does not work correctly (?)
-sleep 1
-rm temp/lang/G.fst
 
 
 
@@ -59,7 +65,7 @@ utils/mkgraph.sh --self-loop-scale 1.0 temp/lang exp/tdnn_7b_chain_online temp/g
 # run the recognizer
 # subsample the frames by factor 3
 # --frame-subsampling-factor=1
-mkdir temp/out
+mkdir -p temp/out
 online2-wav-nnet3-latgen-faster --online=true --do-endpointing=false   --config=exp/tdnn_7b_chain_online/conf/online.conf --max-active=7000 --beam=15.0 \
 --lattice-beam=6.0 --acoustic-scale=1.0 --word-symbol-table=temp/graph_pp/words.txt exp/tdnn_7b_chain_online/final.mdl \
 temp/graph_pp/HCLG.fst "ark:temp/spk2utt.scp"  "scp:temp/wav.scp" "ark:|lattice-scale --acoustic-scale=0.5 ark:- ark:- | gzip -c >temp/out/lat.1.gz"

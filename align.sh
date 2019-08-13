@@ -28,6 +28,8 @@ out_phone_ctm=$5
 
 out_state_seq=$6
 
+likelihod_per_frame=$7
+
 #rm -rf temp
 mkdir -p temp
 # create scp files
@@ -68,8 +70,9 @@ utils/mkgraph.sh --self-loop-scale 1.0 temp/lang exp/tdnn_7b_chain_online temp/g
 mkdir -p temp/out
 online2-wav-nnet3-latgen-faster --online=true --do-endpointing=false   --config=exp/tdnn_7b_chain_online/conf/online.conf --max-active=7000 --beam=15.0 \
 --lattice-beam=6.0 --acoustic-scale=1.0 --word-symbol-table=temp/graph_pp/words.txt exp/tdnn_7b_chain_online/final.mdl \
-temp/graph_pp/HCLG.fst "ark:temp/spk2utt.scp"  "scp:temp/wav.scp" "ark:|lattice-scale --acoustic-scale=0.5 ark:- ark:- | gzip -c >temp/out/lat.1.gz"
+temp/graph_pp/HCLG.fst "ark:temp/spk2utt.scp"  "scp:temp/wav.scp" "ark:|lattice-scale --acoustic-scale=0.5 ark:- ark:- | gzip -c >temp/out/lat.1.gz" > temp/recog_logs 2>&1
 
+python extract_likelihood_per_frame.py temp/recog_logs $likelihod_per_frame
 # create time alignment
 # also acount for frame sub-sampling
 # --frame-shift=0.01

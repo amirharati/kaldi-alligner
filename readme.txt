@@ -20,7 +20,7 @@ This  script downloads the model and also run some commands for preparation.
 Alternatively, you can train your own model. However, you might need to update the scripts accordingly.
 
 Example:
-bash align.sh example/trans.txt example/test.wav data/lang_chain/ out.ctm  out_phone.ctm  out_transid_seq.txt
+bash align.sh example/trans.txt example/test.wav data/lang_chain/ out.ctm  out_phone.ctm  out_transid_seq.txt  lpf.txt
 
 cat out.ctm
 test.wav 1 0.070 0.840 [noise]

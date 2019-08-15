@@ -44,7 +44,7 @@ mkdir -p temp/lang
 mkdir -p temp/graph_pp
 
 
-cp $input_lang_dir/* temp/lang
+cp -rf $input_lang_dir/* temp/lang
 
 
 # expand and update the transcriptions
